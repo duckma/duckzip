@@ -1,12 +1,15 @@
 group 'com.duckma.duckzip'
 version '1.0-SNAPSHOT'
 
+apply plugin: 'com.github.ben-manes.versions'
+apply plugin: 'com.jfrog.bintray'
 apply plugin: 'java'
+apply plugin: 'jacoco'
 
 sourceCompatibility = 1.6
 
 repositories {
-    mavenCentral()
+    jcenter()
 }
 
 dependencies {
@@ -14,4 +17,36 @@ dependencies {
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.2.15'
+}
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.13.0'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.2'
+    }
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    pkg {
+        repo = 'oss'
+        name = 'duckzip'
+
+        version {
+            name = project.version
+            desc = "DuckZip version $project.version"
+            released  = new Date()
+            vcsTag = project.version
+        }
+
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/duckma/duckzip.git'
+        websiteUrl = 'https://github.com/duckma/duckzip'
+        publish = true
+    }
+    configurations = ['archives']
 }
