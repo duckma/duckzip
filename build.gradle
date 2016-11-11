@@ -36,6 +36,7 @@ bintray {
     pkg {
         repo = 'oss'
         name = 'duckzip'
+        userOrg = 'duckma'
 
         version {
             name = project.version
