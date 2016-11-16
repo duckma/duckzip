@@ -42,7 +42,7 @@ bintray {
             name = project.version
             desc = "DuckZip version $project.version"
             released  = new Date()
-            vcsTag = 'v' + project.version
+            vcsTag = project.version
         }
 
         licenses = ['Apache-2.0']
