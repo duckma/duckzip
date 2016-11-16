@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.duckma.duckzip:duckzip:1.0-SNAPSHOT'
+    compile 'com.duckma.duckzip:duckzip:1.0.0'
 }
 ```
 
