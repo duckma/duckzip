@@ -182,10 +182,10 @@ public class DuckZip {
      * @return An {@link Flowable} emitting updates indicating the percentage of files compressed.
      */
     public Flowable<Float> zip(final String sourcePath, final String destFilePath,
-                               UpdateInterval updateInterval) {
+                               final UpdateInterval updateInterval) {
         return Flowable.create(new FlowableOnSubscribe<Float>() {
             @Override
-            public void subscribe(FlowableEmitter<Float> emitter) throws Exception {
+            public void subscribe(final FlowableEmitter<Float> emitter) throws Exception {
                 zip(sourcePath, destFilePath, new ZipProgressUpdateCallback() {
                     @Override
                     public void onZipProgressUpdate(Float progressUpdate) {
@@ -211,6 +211,13 @@ public class DuckZip {
     public void zip(String sourcePath, String destFilePath,
                     ZipProgressUpdateCallback zipProgressUpdateCallback,
                     UpdateInterval updateInterval) throws IOException {
+        if (sourcePath == null) {
+            throw new IllegalArgumentException("Please provide a sourceFilePath");
+        }
+        if (sourcePath == null) {
+            throw new IllegalArgumentException("Please provide a destinationFilePath");
+        }
+
         File zipFile = new File(destFilePath);
         if (zipFile.exists()) {
             zipFile.delete();

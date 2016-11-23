@@ -39,14 +39,14 @@ public class DuckZipTest {
     }
 
     @Test
-    public void testNullParameters() throws Exception {
+    public void testUnzipNullParameters() throws Exception {
         duckZip.unzip(null, null)
                 .subscribe(testSubscriber);
         testSubscriber.assertError(IllegalArgumentException.class);
     }
 
     @Test
-    public void testEmptyParameters() throws Exception {
+    public void testUnzipEmptyParameters() throws Exception {
         duckZip.unzip("", "")
                 .subscribe(testSubscriber);
         testSubscriber.assertError(FileNotFoundException.class);
@@ -103,4 +103,40 @@ public class DuckZipTest {
         Mockito.verify(currentMillisCheck,
                 Mockito.times(Mockito.mockingDetails(callback).getInvocations().size())).currentTimeMillis();
     }
+
+    @Test
+    public void testZipNullParameters() throws Exception {
+        duckZip.zip(null, null)
+            .subscribe(testSubscriber);
+        testSubscriber.assertError(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testZipEmptyParameters() throws Exception {
+        duckZip.zip("", "")
+            .subscribe(testSubscriber);
+        testSubscriber.assertError(FileNotFoundException.class);
+    }
+
+    @Test
+    public void testZipFile() throws Exception {
+        Mockito.when(currentMillisCheck.currentTimeMillis())
+            .thenReturn(System.currentTimeMillis());
+        duckZip.zip("src/test/res/kitten/kitty.jpg", destFolder.getPath())
+            .subscribe(testSubscriber);
+        testSubscriber.assertNoErrors();
+        testSubscriber.assertComplete();
+    }
+
+    @Test
+    public void testZipDirectory() throws Exception {
+        Mockito.when(currentMillisCheck.currentTimeMillis())
+            .thenReturn(System.currentTimeMillis());
+        duckZip.zip("src/test/res/kitten", destFolder.getPath())
+            .subscribe(testSubscriber);
+        testSubscriber.assertNoErrors();
+        testSubscriber.assertComplete();
+    }
+
+
 }
