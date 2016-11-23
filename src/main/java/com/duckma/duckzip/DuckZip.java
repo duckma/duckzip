@@ -197,6 +197,10 @@ public class DuckZip {
         }, BackpressureStrategy.DROP);
     }
 
+    public Flowable<Float> zip(String sourcePath, final String destFilePath) {
+        return zip(sourcePath, destFilePath, UpdateInterval.UPDATE_INTERVAL_DEFAULT);
+    }
+
     /**
      * Zips the file/directory from the sourcePath into the destFilePath.
      * It emits progress updates through the {@link ZipProgressUpdateCallback} every
@@ -214,7 +218,7 @@ public class DuckZip {
         if (sourcePath == null) {
             throw new IllegalArgumentException("Please provide a sourceFilePath");
         }
-        if (sourcePath == null) {
+        if (destFilePath == null) {
             throw new IllegalArgumentException("Please provide a destinationFilePath");
         }
 
@@ -232,7 +236,7 @@ public class DuckZip {
         for (int i = 0; i < files.size(); i++) {
             long currentTimeMillis = currentMillisCheck.currentTimeMillis();
             if (currentTimeMillis - lastUpdateTime > updateInterval.getMillisInterval()) {
-                zipProgressUpdateCallback.onZipProgressUpdate((float) i / files.size());
+                zipProgressUpdateCallback.onZipProgressUpdate((float) (i+1) / files.size());
                 lastUpdateTime = currentTimeMillis;
             }
 
@@ -272,8 +276,9 @@ public class DuckZip {
         return result;
     }
 
-    public Flowable<Float> zip(String sourcePath, final String destFilePath) {
-        return zip(sourcePath, destFilePath, UpdateInterval.UPDATE_INTERVAL_DEFAULT);
+    public void zip(String sourceFilePath, String destDirectoryPath,
+                    ZipProgressUpdateCallback zipProgressUpdateCallback) throws IOException {
+        zip(sourceFilePath, destDirectoryPath, zipProgressUpdateCallback, UpdateInterval.UPDATE_INTERVAL_DEFAULT);
     }
 
     public interface UnzipProgressUpdateCallback {
