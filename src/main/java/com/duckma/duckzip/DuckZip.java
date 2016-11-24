@@ -1,22 +1,17 @@
 package com.duckma.duckzip;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableEmitter;
+import io.reactivex.FlowableOnSubscribe;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
-import io.reactivex.BackpressureStrategy;
-import io.reactivex.Flowable;
-import io.reactivex.FlowableEmitter;
-import io.reactivex.FlowableOnSubscribe;
 
 public class DuckZip {
 
@@ -71,9 +66,9 @@ public class DuckZip {
                     unzip(
                         sourceFilePath,
                         destDirectoryPath,
-                        new UnzipProgressUpdateCallback() {
+                        new ZipProgressUpdateCallback() {
                             @Override
-                            public void onUnzipProgressUpdate(Float progressUpdate) {
+                            public void onZipProgressUpdate(Float progressUpdate) {
                                 emitter.onNext(progressUpdate);
                             }
                         },
@@ -95,17 +90,17 @@ public class DuckZip {
 
     /**
      * Unzips the archive from the sourceFilePath into the destDirectoryPath.
-     * It emits progress updates through the {@link UnzipProgressUpdateCallback} every
+     * It emits progress updates through the {@link ZipProgressUpdateCallback} every
      * updateIntervalMillis.
      *
      * @param sourceFilePath              The path of the archive to unzip.
      * @param destDirectoryPath           The destination path for the unzip process.
-     * @param unzipProgressUpdateCallback A callback to receive progress updates.
+     * @param zipProgressUpdateCallback A callback to receive progress updates.
      * @param updateIntervalMillis        The interval at which the updates will be fired.
      * @throws IOException If source or destination paths can't be accessed.
      */
     public void unzip(String sourceFilePath, String destDirectoryPath,
-                      UnzipProgressUpdateCallback unzipProgressUpdateCallback,
+                      ZipProgressUpdateCallback zipProgressUpdateCallback,
                       UpdateInterval updateIntervalMillis) throws IOException {
 
         //Input sanitizing
@@ -136,7 +131,7 @@ public class DuckZip {
                 // Only send progress updates if the given updateIntervalMillis has elapsed.
                 long currentTimeMillis = currentMillisCheck.currentTimeMillis();
                 if (currentTimeMillis - lastUpdateTime > updateIntervalMillis.getMillisInterval()) {
-                    unzipProgressUpdateCallback.onUnzipProgressUpdate((float) currentFileIndex / fileCount);
+                    zipProgressUpdateCallback.onZipProgressUpdate((float) currentFileIndex / fileCount);
                     lastUpdateTime = currentTimeMillis;
                 }
 
@@ -166,8 +161,8 @@ public class DuckZip {
     }
 
     public void unzip(String sourceFilePath, String destDirectoryPath,
-                      UnzipProgressUpdateCallback unzipProgressUpdateCallback) throws IOException {
-        unzip(sourceFilePath, destDirectoryPath, unzipProgressUpdateCallback, UpdateInterval.UPDATE_INTERVAL_DEFAULT);
+                      ZipProgressUpdateCallback zipProgressUpdateCallback) throws IOException {
+        unzip(sourceFilePath, destDirectoryPath, zipProgressUpdateCallback, UpdateInterval.UPDATE_INTERVAL_DEFAULT);
     }
 
     /**
@@ -279,10 +274,6 @@ public class DuckZip {
     public void zip(String sourceFilePath, String destDirectoryPath,
                     ZipProgressUpdateCallback zipProgressUpdateCallback) throws IOException {
         zip(sourceFilePath, destDirectoryPath, zipProgressUpdateCallback, UpdateInterval.UPDATE_INTERVAL_DEFAULT);
-    }
-
-    public interface UnzipProgressUpdateCallback {
-        void onUnzipProgressUpdate(Float progressUpdate);
     }
 
     public interface ZipProgressUpdateCallback {

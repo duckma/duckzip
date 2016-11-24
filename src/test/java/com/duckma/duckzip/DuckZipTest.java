@@ -81,11 +81,11 @@ public class DuckZipTest {
 
     @Test
     public void testSyncUnzipArchiveDefaultProgression() throws Exception {
-        DuckZip.UnzipProgressUpdateCallback callback = Mockito.spy(new DuckZip.UnzipProgressUpdateCallback() {
+        DuckZip.ZipProgressUpdateCallback callback = Mockito.spy(new DuckZip.ZipProgressUpdateCallback() {
             float progress;
 
             @Override
-            public void onUnzipProgressUpdate(Float progressUpdate) {
+            public void onZipProgressUpdate(Float progressUpdate) {
                 Assert.assertTrue(progress < progressUpdate);
                 progress = progressUpdate;
             }
