@@ -15,8 +15,6 @@ import org.mockito.stubbing.Answer;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-import static org.junit.Assert.*;
-
 public class DuckZipTest {
 
     private DuckZip duckZip;
@@ -39,25 +37,25 @@ public class DuckZipTest {
     }
 
     @Test
-    public void testNullParameters() throws Exception {
+    public void testUnzipNullParameters() throws Exception {
         duckZip.unzip(null, null)
-                .subscribe(testSubscriber);
+            .subscribe(testSubscriber);
         testSubscriber.assertError(IllegalArgumentException.class);
     }
 
     @Test
-    public void testEmptyParameters() throws Exception {
+    public void testUnzipEmptyParameters() throws Exception {
         duckZip.unzip("", "")
-                .subscribe(testSubscriber);
+            .subscribe(testSubscriber);
         testSubscriber.assertError(FileNotFoundException.class);
     }
 
     @Test
     public void testUnzipArchive() throws Exception {
         Mockito.when(currentMillisCheck.currentTimeMillis())
-                .thenReturn(System.currentTimeMillis());
+            .thenReturn(System.currentTimeMillis());
         duckZip.unzip("src/test/res/kitten.zip", destFolder.getPath())
-                .subscribe(testSubscriber);
+            .subscribe(testSubscriber);
         testSubscriber.assertNoErrors();
         testSubscriber.assertComplete();
     }
@@ -65,16 +63,17 @@ public class DuckZipTest {
     @Test
     public void testUnzipArchiveDefaultProgression() throws Exception {
         Mockito.when(currentMillisCheck.currentTimeMillis())
-                .thenAnswer(new Answer<Long>() {
-                    long startTime = System.currentTimeMillis();
-                    @Override
-                    public Long answer(InvocationOnMock invocation) throws Throwable {
-                        startTime = startTime + 400;
-                        return startTime;
-                    }
-                });
+            .thenAnswer(new Answer<Long>() {
+                long startTime = System.currentTimeMillis();
+
+                @Override
+                public Long answer(InvocationOnMock invocation) throws Throwable {
+                    startTime = startTime + 400;
+                    return startTime;
+                }
+            });
         duckZip.unzip("src/test/res/kitten.zip", destFolder.getPath())
-                .subscribe(testSubscriber);
+            .subscribe(testSubscriber);
         Mockito.verify(currentMillisCheck, Mockito.times(testSubscriber.valueCount())).currentTimeMillis();
         testSubscriber.assertNoErrors();
         testSubscriber.assertComplete();
@@ -82,25 +81,107 @@ public class DuckZipTest {
 
     @Test
     public void testSyncUnzipArchiveDefaultProgression() throws Exception {
-        DuckZip.UnzipProgressUpdateCallback callback = Mockito.spy(new DuckZip.UnzipProgressUpdateCallback() {
+        DuckZip.ZipProgressUpdateCallback callback = Mockito.spy(new DuckZip.ZipProgressUpdateCallback() {
             float progress;
+
             @Override
-            public void onUnzipProgressUpdate(Float progressUpdate) {
+            public void onZipProgressUpdate(Float progressUpdate) {
                 Assert.assertTrue(progress < progressUpdate);
                 progress = progressUpdate;
             }
         });
         Mockito.when(currentMillisCheck.currentTimeMillis())
-                .thenAnswer(new Answer<Long>() {
-                    long startTime = System.currentTimeMillis();
-                    @Override
-                    public Long answer(InvocationOnMock invocation) throws Throwable {
-                        startTime = startTime + 400;
-                        return startTime;
-                    }
-                });
+            .thenAnswer(new Answer<Long>() {
+                long startTime = System.currentTimeMillis();
+
+                @Override
+                public Long answer(InvocationOnMock invocation) throws Throwable {
+                    startTime = startTime + 400;
+                    return startTime;
+                }
+            });
         duckZip.unzip("src/test/res/kitten.zip", destFolder.getPath(), callback);
         Mockito.verify(currentMillisCheck,
-                Mockito.times(Mockito.mockingDetails(callback).getInvocations().size())).currentTimeMillis();
+            Mockito.times(Mockito.mockingDetails(callback).getInvocations().size())).currentTimeMillis();
     }
+
+    @Test
+    public void testZipNullParameters() throws Exception {
+        duckZip.zip(null, null)
+            .subscribe(testSubscriber);
+        testSubscriber.assertError(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testZipEmptyParameters() throws Exception {
+        duckZip.zip("", "")
+            .subscribe(testSubscriber);
+        testSubscriber.assertError(FileNotFoundException.class);
+    }
+
+    @Test
+    public void testZipFile() throws Exception {
+        Mockito.when(currentMillisCheck.currentTimeMillis())
+            .thenReturn(System.currentTimeMillis());
+        duckZip.zip("src/test/res/kitten/kitty.jpg", destFolder.getPath() + "kitten.zip")
+            .subscribe(testSubscriber);
+        testSubscriber.assertNoErrors();
+        testSubscriber.assertComplete();
+    }
+
+    @Test
+    public void testZipDirectory() throws Exception {
+        Mockito.when(currentMillisCheck.currentTimeMillis())
+            .thenReturn(System.currentTimeMillis());
+        duckZip.zip("src/test/res/kitten", destFolder.getPath() + "kitten.zip")
+            .subscribe(testSubscriber);
+        testSubscriber.assertNoErrors();
+        testSubscriber.assertComplete();
+    }
+
+    @Test
+    public void testZipArchiveDefaultProgression() throws Exception {
+        Mockito.when(currentMillisCheck.currentTimeMillis())
+            .thenAnswer(new Answer<Long>() {
+                long startTime = System.currentTimeMillis();
+
+                @Override
+                public Long answer(InvocationOnMock invocation) throws Throwable {
+                    startTime = startTime + 400;
+                    return startTime;
+                }
+            });
+        duckZip.zip("src/test/res/kitten", destFolder.getPath() + "kitten.zip")
+            .subscribe(testSubscriber);
+        Mockito.verify(currentMillisCheck, Mockito.times(testSubscriber.valueCount())).currentTimeMillis();
+        testSubscriber.assertNoErrors();
+        testSubscriber.assertComplete();
+    }
+
+    @Test
+    public void testSyncZipArchiveDefaultProgression() throws Exception {
+        DuckZip.ZipProgressUpdateCallback callback = Mockito.spy(new DuckZip.ZipProgressUpdateCallback() {
+            float progress;
+
+            @Override
+            public void onZipProgressUpdate(Float progressUpdate) {
+                Assert.assertTrue(progress < progressUpdate);
+                progress = progressUpdate;
+            }
+        });
+        Mockito.when(currentMillisCheck.currentTimeMillis())
+            .thenAnswer(new Answer<Long>() {
+                long startTime = System.currentTimeMillis();
+
+                @Override
+                public Long answer(InvocationOnMock invocation) throws Throwable {
+                    startTime = startTime + 400;
+                    return startTime;
+                }
+            });
+        duckZip.zip("src/test/res/kitten", destFolder.getPath() + "kitten.zip", callback);
+        Mockito.verify(currentMillisCheck,
+            Mockito.times(Mockito.mockingDetails(callback).getInvocations().size())).currentTimeMillis();
+    }
+
 }
