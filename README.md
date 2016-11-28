@@ -12,18 +12,19 @@ repositories {
 }
 
 dependencies {
-    compile 'com.duckma.duckzip:duckzip:1.0.0'
+    compile 'com.duckma.duckzip:duckzip:1.1.0'
 }
 ```
 
 ## Usage
-
+### Unzip
 ```java
 public class MyClass {
 
     private final DuckZip duckZip = new DuckZip();
-    
-    duckZip.unzip("/path/to/source/file.zip", "/path/to/output/dir").
+
+    ...
+        duckZip.unzip("/path/to/source/file.zip", "/path/to/output/dir").
             subscribe(new DisposableSubscriber<Float>() {
                 @Override
                 public void onNext(Float aFloat) {
@@ -40,7 +41,35 @@ public class MyClass {
                     System.out.println("Unzip complete");
                 }
             });
+    ...
+}
+```
 
+### Zip
+```java
+public class MyClass {
+
+    private final DuckZip duckZip = new DuckZip();
+
+    ...
+        duckZip.zip("/path/to/input/dir", "/path/to/output/file.zip")
+            .subscribe(new DisposableSubscriber<Float>() {
+                @Override
+                public void onNext(Float aFloat) {
+                    System.out.println("Zip progress: " + Float.toString(aFloat));
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    System.out.println("Error: " + t.getLocalizedMessage());
+                }
+
+                @Override
+                public void onComplete() {
+                    System.out.println("Zip complete");
+                }
+            });
+    ...
 }
 ```
 
